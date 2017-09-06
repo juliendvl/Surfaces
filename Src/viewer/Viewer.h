@@ -6,6 +6,8 @@
 #include <glm/glm.hpp>
 #include <SFML/Window.hpp>
 
+#include "curves/Curve.h"
+#include "curves/GLCurve.h"
 #include "surfaces/GLSurface.h"
 #include "surfaces/Surface.h"
 #include "viewer/Camera.h"
@@ -23,6 +25,9 @@ public:
 
     void addProgram(const std::string& name, const std::string& vFile, const std::string& fFile);
     void addProgram(const std::string& name, ShaderProgramPtr& program);
+
+    void addCurve(const CurvePtr& curve, size_t nbSamples = 100);
+    void addCurve(const GLCurvePtr& curve);
 
     void addSurface(const SurfacePtr& surface, size_t xStep = 10, size_t yStep = 10);
     void addSurface(const GLSurfacePtr& surface);
@@ -46,6 +51,7 @@ private:
     std::unordered_map<std::string, ShaderProgramPtr> m_programs;
 
     std::vector<GLSurfacePtr> m_surfaces;
+    std::vector<GLCurvePtr> m_curves;
 
     Viewer();
 

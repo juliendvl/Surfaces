@@ -20,6 +20,7 @@
   </ItemGroup>
   <ItemGroup>
     <ClInclude Include="..\Src\curves\Curve.h" />
+    <ClInclude Include="..\Src\curves\GLCurve.h" />
     <ClInclude Include="..\Src\curves\HermiteSpline.h" />
     <ClInclude Include="..\Src\curves\LinearSpline.h" />
     <ClInclude Include="..\Src\surfaces\GLSurface.h" />
@@ -33,6 +34,7 @@
     <ClInclude Include="..\Src\viewer\Viewer.h" />
   </ItemGroup>
   <ItemGroup>
+    <ClCompile Include="..\Src\curves\GLCurve.cpp" />
     <ClCompile Include="..\Src\curves\HermiteSpline.cpp" />
     <ClCompile Include="..\Src\curves\LinearSpline.cpp" />
     <ClCompile Include="..\Src\Main.cpp" />

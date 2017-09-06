@@ -35,6 +35,19 @@ void Viewer::addProgram(const std::string& name, ShaderProgramPtr& program)
     ShaderProgram::Stop();
 }
 
+void Viewer::addCurve(const CurvePtr& curve, size_t nbSamples)
+{
+    auto glCurve = std::make_shared<GLCurve>(curve);
+    glCurve->tesselate(nbSamples);
+
+    m_curves.push_back(glCurve);
+}
+
+void Viewer::addCurve(const GLCurvePtr& curve)
+{
+    m_curves.push_back(curve);
+}
+
 void Viewer::addSurface(const SurfacePtr& surface, size_t xStep, size_t yStep)
 {
     auto glSurface = std::make_shared<GLSurface>(surface);
@@ -96,6 +109,11 @@ void Viewer::draw()
         }
         ShaderProgram::Stop();
     }
+
+    auto curveProgram = m_programs.at("curve");
+    auto pointProgram = m_programs.at("point");
+    for (const GLCurvePtr& curve : m_curves)
+        curve->draw(*pointProgram, *curveProgram);
 
     auto surfaceProgram = m_programs.at("surface");
     surfaceProgram->start();

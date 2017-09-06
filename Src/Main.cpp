@@ -9,6 +9,8 @@ int main()
     Logger::SetMinLogLevel(LogLevel::DEBUG_LVL);
     Viewer& viewer = Viewer::Get();
 
+    viewer.addProgram("curve", "../Shaders/curve.vs", "../Shaders/curve.fs");
+    viewer.addProgram("point", "../Shaders/point.vs", "../Shaders/point.fs");
     viewer.addProgram("surface", "../Shaders/surface.vs", "../Shaders/surface.fs");
 
     viewer.addSurface(std::make_shared<Grid>(

@@ -51,6 +51,9 @@
     <ClInclude Include="..\Src\curves\Curve.h">
       <Filter>Fichiers d%27en-tête</Filter>
     </ClInclude>
+    <ClInclude Include="..\Src\curves\GLCurve.h">
+      <Filter>Fichiers d%27en-tête</Filter>
+    </ClInclude>
   </ItemGroup>
   <ItemGroup>
     <ClCompile Include="..\Src\viewer\ShaderProgram.cpp">
@@ -81,6 +84,9 @@
       <Filter>Fichiers sources</Filter>
     </ClCompile>
     <ClCompile Include="..\Src\curves\LinearSpline.cpp">
+      <Filter>Fichiers sources</Filter>
+    </ClCompile>
+    <ClCompile Include="..\Src\curves\GLCurve.cpp">
       <Filter>Fichiers sources</Filter>
     </ClCompile>
   </ItemGroup>
