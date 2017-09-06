@@ -5,27 +5,26 @@
 #include "curves\HermiteSpline.h"
 #include "curves\LinearSpline.h"
 
+enum class InterpolationMode {
+  linear = 0,
+  hermite_from_polyline = 1,
+  hermite_from_ctrl_pts = 2,
+  orthogonal_tangent = 3,
+};
+
 class HermiteSurface : public Surface
 {
-
-
   public:
 
     HermiteSurface();
-    HermiteSurface(std::string time_interpolation_mode);
-    std::string get_time_interpolation_mode() { return _time_interpolation_mode; };
+    HermiteSurface(InterpolationMode time_interpolation_mode);
+    InterpolationMode get_time_interpolation_mode() { return _time_interpolation; };
 
   private:
-    std::string _time_interpolation_mode;
+    InterpolationMode _time_interpolation;
     std::vector<HermiteSpline> strokes;
     glm::vec3 evaluate(float s, float t) override;
 };
-//
-//enum {
-//  linear_interpolation_t = 0,
-//  create_from_polyline = 1,
-//  create_from_ctrl_pts = 2,
-//  t_orthogonal = 3,
-//};
+
 
 #endif // HERMITE_SURFACE_H_
