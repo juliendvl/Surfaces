@@ -65,10 +65,7 @@ void HermiteSpline::update_params()
   std::vector<float> lengths;
   for (size_t i = 1; i < nb_pts; ++i)
   {
-    // TO DO find length2 in glm
-    /*if ((_points[i - 1] - _points[i]).length2() != 0.0f)
-      _length += compute_length(_points[i - 1], _points[i], _tangents[i - 1], _tangents[i]);*/
-    if ((_points[i - 1] - _points[i]).length() != 0.0f)
+    if (glm::length(_points[i - 1] - _points[i]) != 0.0f)
       _length += compute_length(_points[i - 1], _points[i], _tangents[i - 1], _tangents[i]);
     lengths.push_back(_length);
   }
@@ -136,6 +133,5 @@ glm::vec3 HermiteSpline::hermite_tangent(const glm::vec3& P0, const glm::vec3& P
   float h2 = 6.0f * t * (-t + 1.0f);
   float h3 = 3.0f * t2 - 2.0f * t;
   
-  // TO DO : find normalizied in glm return (h0 * P0 + h1 * T0 + h2 * P1 + h3 * T1).normalized;
-  return (h0 * P0 + h1 * T0 + h2 * P1 + h3 * T1);
+  return glm::normalize(h0 * P0 + h1 * T0 + h2 * P1 + h3 * T1);
 }

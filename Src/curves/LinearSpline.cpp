@@ -43,9 +43,7 @@ glm::vec3 LinearSpline::get_point(float param)
     if (param < _params[i])
     {
       float t = (param - _params[i - 1]) / (_params[i] - _params[i - 1]);
-      // TO DO trouver equivalent return glm::lerp<glm::vec3, float>(_points[i - 1], _points[i], t);
-      printf("writefunction \n");
-      return glm::vec3();
+      return glm::mix(_points[i - 1], _points[i], t);//<glm::vec3, float>
     }
   }
 
