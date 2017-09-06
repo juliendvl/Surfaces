@@ -18,11 +18,12 @@ class HermiteSurface : public Surface
 
     HermiteSurface();
     HermiteSurface(InterpolationMode time_interpolation_mode);
+    HermiteSurface::HermiteSurface(InterpolationMode time_interpolation_mode, std::vector<HermiteSpline> strokes);
     InterpolationMode get_time_interpolation_mode() { return _time_interpolation; };
 
   private:
     InterpolationMode _time_interpolation;
-    std::vector<HermiteSpline> strokes;
+    std::vector<HermiteSpline> _strokes;
     glm::vec3 evaluate(float s, float t) override;
 };
 
