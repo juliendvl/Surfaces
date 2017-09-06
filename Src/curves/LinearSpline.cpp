@@ -38,6 +38,11 @@ void LinearSpline::updateParams()
 
 glm::vec3 LinearSpline::get_point(float param)  
 {
+  if (param <= 0.0f)
+    return _points.front();
+  if (param >= 1.0f)
+    return _points.back();
+
   for (size_t i = 1; i < _points.size(); ++i)
   {
     if (param < _params[i])

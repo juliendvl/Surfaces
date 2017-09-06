@@ -27,7 +27,6 @@ void HermiteSpline::set_points(const std::vector<glm::vec3>& points)
   update_params();
 }
 
-
 void HermiteSpline::set_points_tangents(const std::vector<glm::vec3>& points,
                                         const std::vector<glm::vec3>& tangents)
 {
@@ -38,8 +37,10 @@ void HermiteSpline::set_points_tangents(const std::vector<glm::vec3>& points,
 
   update_params();
 }
+
+
 float HermiteSpline::compute_length(const glm::vec3& P0, const glm::vec3& P1,
-  const glm::vec3& T0, const glm::vec3& T1) const
+                                    const glm::vec3& T0, const glm::vec3& T1) const
 {
   const unsigned int nb_samples = 20;
   float step = 1.0f / nb_samples;
@@ -55,6 +56,7 @@ float HermiteSpline::compute_length(const glm::vec3& P0, const glm::vec3& P1,
 
   return length;
 }
+
 void HermiteSpline::update_params()
 {
   size_t nb_pts = _points.size();
@@ -79,6 +81,11 @@ void HermiteSpline::update_params()
 
 glm::vec3 HermiteSpline::get_point(float param)  
 {
+  if (param <= 0.0f)
+    return _points.front();
+  if (param >= 1.0f)
+    return _points.back();
+
   for (size_t i = 1; i < _params.size(); ++i)
   {
     if (param < _params[i])
