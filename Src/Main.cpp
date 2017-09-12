@@ -18,13 +18,6 @@ int main()
     SurfacePtr surf_ptr = std::make_shared<HermiteSurface>(herm_surf);
     viewer.addSurface(surf_ptr, 20, 20);
 
-   viewer.addSurface(std::make_shared<Grid>(
-        glm::vec3(-0.8f, 0.9f, 0.0f),
-        glm::vec3(0.5f, 0.6f, 0.0f),
-        glm::vec3(-0.5f, -0.4f, 0.0f),
-        glm::vec3(0.8f, -0.7f, 0.0f)
-    ));
-
     while (viewer.isRunning())
     {
         viewer.handleEvents();

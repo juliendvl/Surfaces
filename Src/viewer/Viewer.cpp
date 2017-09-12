@@ -136,6 +136,7 @@ Viewer::Viewer()
     , m_lastY(0)
     , m_camera{glm::vec3(0.0f, 0.0f, 2.0f), 1024.0f / 768.0f}
     , m_reloadCamera(true)
+    , m_highlightSurfaces(true)
 {
     glewExperimental = GL_TRUE;
     if (glewInit() != GLEW_OK)
@@ -157,6 +158,19 @@ void Viewer::handleKeyEvent(const sf::Event::KeyEvent& keyEvent)
     case sf::Keyboard::R:
         for (const auto& it : m_programs)
             it.second->compileAndLink();
+        break;
+    case sf::Keyboard::H:
+        m_highlightSurfaces = !m_highlightSurfaces;
+        for (const GLSurfacePtr& surface : m_surfaces)
+            surface->useHighlighting(m_highlightSurfaces);
+        break;
+    case sf::Keyboard::Left:
+        for (const GLSurfacePtr& surface : m_surfaces)
+            surface->setHighlightIndex(surface->getHighlightIndex() - 1);
+        break;
+    case sf::Keyboard::Right:
+        for (const GLSurfacePtr& surface : m_surfaces)
+            surface->setHighlightIndex(surface->getHighlightIndex() + 1);
         break;
     default:
         break;

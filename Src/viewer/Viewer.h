@@ -53,6 +53,8 @@ private:
     std::vector<GLSurfacePtr> m_surfaces;
     std::vector<GLCurvePtr> m_curves;
 
+    bool m_highlightSurfaces;
+
     Viewer();
 
     void handleKeyEvent(const sf::Event::KeyEvent& keyEvent);

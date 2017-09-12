@@ -9,6 +9,9 @@ GLSurface::GLSurface(const SurfacePtr& surface)
     , m_xStep(0)
     , m_yStep(0)
     , m_color(1.0f)
+    , m_highlight(true)
+    , m_highlightIndex(0)
+    , m_highlightColor(1.0f, 0.0f, 0.0f, 1.0f)
 {
     GLCHECK(glGenVertexArrays(1, &m_vao));
     if (m_vao == 0)
@@ -106,12 +109,26 @@ void GLSurface::draw(ShaderProgram& program)
 
     // Draw columns
     for (size_t v = 0; v < m_yStep; ++v)
+    {
+        if (m_highlight && v == m_highlightIndex)
+        {
+            GLCHECK(glLineWidth(4.0f));
+            program.setUniform("surfaceColor", m_highlightColor);
+        }
+
         GLCHECK(glDrawElements(
             GL_LINE_STRIP,
             m_xStep,
             GL_UNSIGNED_INT,
             (void*)(v * m_xStep * sizeof(unsigned int))
         ));
+
+        if (m_highlight && v == m_highlightIndex)
+        {
+            GLCHECK(glLineWidth(1.0f));
+            program.setUniform("surfaceColor", m_color);
+        }
+    }
 
     // Draw lines
     for (size_t u = 0; u < m_xStep; ++u)
