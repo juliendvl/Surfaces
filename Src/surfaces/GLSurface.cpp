@@ -103,31 +103,28 @@ void GLSurface::tesselate(size_t xStep, size_t yStep)
 
 void GLSurface::draw(ShaderProgram& program)
 {
+    /**
+     * The surface rendering is done in 3 steps :
+     *      - draw surface
+     *      - draw surface inputs
+     *      - draw highlighted isoline
+     * With a GL_LEQUAL depth test, inputs will always hide surface and isoline will hide input
+     */
+
     GLCHECK(glBindVertexArray(m_vao));
 
+    program.start();
     program.setUniform("surfaceColor", m_color);
 
     // Draw columns
     for (size_t v = 0; v < m_yStep; ++v)
     {
-        if (m_highlight && v == m_highlightIndex)
-        {
-            GLCHECK(glLineWidth(4.0f));
-            program.setUniform("surfaceColor", m_highlightColor);
-        }
-
         GLCHECK(glDrawElements(
             GL_LINE_STRIP,
             m_xStep,
             GL_UNSIGNED_INT,
             (void*)(v * m_xStep * sizeof(unsigned int))
         ));
-
-        if (m_highlight && v == m_highlightIndex)
-        {
-            GLCHECK(glLineWidth(1.0f));
-            program.setUniform("surfaceColor", m_color);
-        }
     }
 
     // Draw lines
@@ -140,4 +137,26 @@ void GLSurface::draw(ShaderProgram& program)
         ));
 
     GLCHECK(glBindVertexArray(0));
+
+    // Inputs
+    if (m_surface->drawInputs())
+        m_surface->draw();
+
+    // Isoline
+    if (m_highlight)
+    {
+        program.start();
+        program.setUniform("surfaceColor", m_highlightColor);
+
+        GLCHECK(glBindVertexArray(m_vao));
+        GLCHECK(glLineWidth(4.0f));
+        GLCHECK(glDrawElements(
+            GL_LINE_STRIP,
+            m_xStep,
+            GL_UNSIGNED_INT,
+            (void*)(m_highlightIndex * m_xStep * sizeof(unsigned int))
+        ));
+        GLCHECK(glLineWidth(1.0f));
+        GLCHECK(glBindVertexArray(0));
+    }
 }

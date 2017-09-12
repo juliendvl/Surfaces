@@ -35,6 +35,12 @@ void Viewer::addProgram(const std::string& name, ShaderProgramPtr& program)
     ShaderProgram::Stop();
 }
 
+ShaderProgramPtr Viewer::getProgram(const std::string& name)
+{
+    auto it = m_programs.find(name);
+    return (it != m_programs.end()) ? it->second : nullptr;
+}
+
 void Viewer::addCurve(const CurvePtr& curve, size_t nbSamples)
 {
     auto glCurve = std::make_shared<GLCurve>(curve);
@@ -116,7 +122,6 @@ void Viewer::draw()
         curve->draw(*pointProgram, *curveProgram);
 
     auto surfaceProgram = m_programs.at("surface");
-    surfaceProgram->start();
     for (const GLSurfacePtr& surface : m_surfaces)
         surface->draw(*surfaceProgram);
     ShaderProgram::Stop();
@@ -143,7 +148,7 @@ Viewer::Viewer()
         Logger::Fatal("Failed to init GLEW");
 
     GLCHECK(glEnable(GL_DEPTH_TEST));
-    GLCHECK(glDepthFunc(GL_LESS));
+    GLCHECK(glDepthFunc(GL_LEQUAL));
     GLCHECK(glEnable(GL_PROGRAM_POINT_SIZE));
 
     setBackgroundColor(glm::vec3(0.2f));
@@ -155,14 +160,14 @@ void Viewer::handleKeyEvent(const sf::Event::KeyEvent& keyEvent)
 {
     switch (keyEvent.code)
     {
-    case sf::Keyboard::R:
-        for (const auto& it : m_programs)
-            it.second->compileAndLink();
-        break;
     case sf::Keyboard::H:
         m_highlightSurfaces = !m_highlightSurfaces;
         for (const GLSurfacePtr& surface : m_surfaces)
             surface->useHighlighting(m_highlightSurfaces);
+        break;
+    case sf::Keyboard::R:
+        for (const auto& it : m_programs)
+            it.second->compileAndLink();
         break;
     case sf::Keyboard::Left:
         for (const GLSurfacePtr& surface : m_surfaces)

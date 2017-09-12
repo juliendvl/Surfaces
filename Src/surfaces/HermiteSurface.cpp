@@ -1,8 +1,11 @@
-
 #include "HermiteSurface.h"
 
+#include "viewer/Viewer.h"
+
+
 HermiteSurface::HermiteSurface()
-  : Surface()
+    : Surface()
+    , m_color(0.0f, 1.0f, 0.0f, 1.0f)
 {
   _time_interpolation = InterpolationMode::linear;
 
@@ -12,14 +15,14 @@ HermiteSurface::HermiteSurface()
   points.push_back(glm::vec3(-0.4f, 0.4f, 0.0f));
   points.push_back(glm::vec3(-0.4f, 0.6f, 0.0f));
   points.push_back(glm::vec3(-0.4f, 0.8f, 0.0f));
-  HermiteSpline stroke_1(points);
+  HermiteSplinePtr stroke_1 = std::make_shared<HermiteSpline>(points);
 
   points.clear();
   points.push_back(glm::vec3(-0.2f, 0.2f, 0.0f));
   points.push_back(glm::vec3(-0.2f, 0.4f, 0.0f));
   points.push_back(glm::vec3(-0.2f, 0.6f, 0.0f));
   points.push_back(glm::vec3(-0.2f, 0.8f, 0.0f));
-  HermiteSpline stroke_2(points);
+  HermiteSplinePtr stroke_2 = std::make_shared<HermiteSpline>(points);
 
 
   points.clear();
@@ -27,23 +30,26 @@ HermiteSurface::HermiteSurface()
   points.push_back(glm::vec3(0.2f, 0.4f, 0.0f));
   points.push_back(glm::vec3(0.2f, 0.6f, 0.0f));
   points.push_back(glm::vec3(0.2f, 0.8f, 0.0f));
-  HermiteSpline stroke_3(points);
+  HermiteSplinePtr stroke_3 = std::make_shared<HermiteSpline>(points);
 
   points.clear();
   points.push_back(glm::vec3(0.4f, 0.2f, 0.0f));
   points.push_back(glm::vec3(0.4f, 0.4f, 0.0f));
   points.push_back(glm::vec3(0.4f, 0.6f, 0.0f));
   points.push_back(glm::vec3(0.4f, 0.8f, 0.0f));
-  HermiteSpline stroke_4(points);
+  HermiteSplinePtr stroke_4 = std::make_shared<HermiteSpline>(points);
 
   _strokes.push_back(stroke_1);
   _strokes.push_back(stroke_2);
   _strokes.push_back(stroke_3);
   _strokes.push_back(stroke_4);
+
+  init();
 }
 
 HermiteSurface::HermiteSurface(InterpolationMode time_interpolation_mode)
-  : Surface()
+    : Surface()
+    , m_color(0.0f, 1.0f, 0.0f, 1.0f)
 {
   _time_interpolation = time_interpolation_mode;
   
@@ -53,14 +59,14 @@ HermiteSurface::HermiteSurface(InterpolationMode time_interpolation_mode)
   points.push_back(glm::vec3(-0.4f, 0.4f, 0.0f));
   points.push_back(glm::vec3(-0.4f, 0.8f, 0.0f));
   points.push_back(glm::vec3(-0.4f, 0.99f, 0.0f));
-  HermiteSpline stroke_1(points);
+  HermiteSplinePtr stroke_1 = std::make_shared<HermiteSpline>(points);
 
   points.clear();
   points.push_back(glm::vec3(-0.2f, 0.3f, 0.0f));
   points.push_back(glm::vec3(-0.2f, 0.5f, 0.0f));
   points.push_back(glm::vec3(-0.2f, 0.6f, 0.0f));
   points.push_back(glm::vec3(-0.2f, 0.7f, 0.0f));
-  HermiteSpline stroke_2(points);
+  HermiteSplinePtr stroke_2 = std::make_shared<HermiteSpline>(points);
 
 
   points.clear();
@@ -68,34 +74,52 @@ HermiteSurface::HermiteSurface(InterpolationMode time_interpolation_mode)
   points.push_back(glm::vec3(0.2f, 0.3f, 0.0f));
   points.push_back(glm::vec3(0.2f, 0.5f, 0.0f));
   points.push_back(glm::vec3(0.2f, 0.7f, 0.0f));
-  HermiteSpline stroke_3(points);
+  HermiteSplinePtr stroke_3 = std::make_shared<HermiteSpline>(points);
 
   points.clear();
   points.push_back(glm::vec3(0.4f, 0.2f, 0.0f));
   points.push_back(glm::vec3(0.4f, 0.4f, 0.0f));
   points.push_back(glm::vec3(0.4f, 0.6f, 0.0f));
   points.push_back(glm::vec3(0.4f, 0.8f, 0.0f));
-  HermiteSpline stroke_4(points);
+  HermiteSplinePtr stroke_4 = std::make_shared<HermiteSpline>(points);
 
   _strokes.push_back(stroke_1);
   _strokes.push_back(stroke_2);
   _strokes.push_back(stroke_3);
   _strokes.push_back(stroke_4);
 
+  init();
 }
-HermiteSurface::HermiteSurface(InterpolationMode time_interpolation_mode, std::vector<HermiteSpline> strokes)
-  : Surface()
+
+HermiteSurface::HermiteSurface(InterpolationMode time_interpolation_mode, const std::vector<HermiteSplinePtr>& strokes)
+    : Surface()
+    , _time_interpolation(time_interpolation_mode)
+    , _strokes(strokes)
+    , m_color(0.0f, 1.0f, 0.0f, 1.0f)
 {
-  _time_interpolation = time_interpolation_mode;
-  _strokes = strokes;
+    init();
 }
+
+
+void HermiteSurface::draw()
+{
+    ShaderProgram& pointProgram = *(Viewer::Get().getProgram("point"));
+    ShaderProgram& curveProgram = *(Viewer::Get().getProgram("curve"));
+
+    GLCHECK(glLineWidth(4.0f));
+    for (GLCurvePtr& keySpline : m_keyCurves)
+        keySpline->draw(pointProgram, curveProgram);
+    GLCHECK(glLineWidth(1.0f));
+}
+
+
 glm::vec3 HermiteSurface::evaluate(float s, float t)
 {
   std::vector<glm::vec3> points;
   glm::vec3 result;
   int N = _strokes.size();
   for (int i = 0; i < N; ++i) {
-    points.push_back(_strokes[i].get_point(s));
+    points.push_back(_strokes[i]->get_point(s));
   }
   HermiteSpline time_hermite;
   LinearSpline linear_time;
@@ -118,4 +142,17 @@ glm::vec3 HermiteSurface::evaluate(float s, float t)
   }
   
   return result;
+}
+
+void HermiteSurface::init()
+{
+    for (HermiteSplinePtr& keySpline : _strokes)
+    {
+        GLCurvePtr curve = std::make_shared<GLCurve>(keySpline);
+        curve->drawControlPoints(false);
+        curve->setCurveColor(m_color);
+        curve->tesselate();
+
+        m_keyCurves.push_back(curve);
+    }
 }

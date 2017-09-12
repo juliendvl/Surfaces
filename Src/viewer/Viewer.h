@@ -26,6 +26,8 @@ public:
     void addProgram(const std::string& name, const std::string& vFile, const std::string& fFile);
     void addProgram(const std::string& name, ShaderProgramPtr& program);
 
+    ShaderProgramPtr getProgram(const std::string& name);
+
     void addCurve(const CurvePtr& curve, size_t nbSamples = 100);
     void addCurve(const GLCurvePtr& curve);
 

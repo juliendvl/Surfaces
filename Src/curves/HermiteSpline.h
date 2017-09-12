@@ -1,11 +1,13 @@
 #ifndef HERMITE_SPLINE_H_
 #define HERMITE_SPLINE_H_
 
+#include <memory>
+
 #include "Curve.h"
 
 class HermiteSpline : public Curve
-  {
-  public:
+{
+public:
     HermiteSpline();
     HermiteSpline(const std::vector<glm::vec3>& points);
     HermiteSpline(const std::vector<glm::vec3>& points, const std::vector<glm::vec3>& tangents);
@@ -13,7 +15,7 @@ class HermiteSpline : public Curve
     void set_points_tangents(const std::vector<glm::vec3>& points, const std::vector<glm::vec3>& tangents);
     glm::vec3 get_point(float param)  override;
 
-  private:
+private:
     float compute_length(const glm::vec3& P0, const glm::vec3& P1, const glm::vec3& T0, const glm::vec3& T1) const;
 
     std::vector<glm::vec3> _tangents;
@@ -21,7 +23,8 @@ class HermiteSpline : public Curve
     void catmull_rom_tangents(float c = 0.5f);
     glm::vec3 hermite(const glm::vec3& P0, const glm::vec3& P1, const glm::vec3& T0, const glm::vec3& T1, float t) const;
     glm::vec3 hermite_tangent(const glm::vec3& P0, const glm::vec3& P1, const glm::vec3& T0, const glm::vec3& T1, float t) const;
+};
 
-  };
+using HermiteSplinePtr = std::shared_ptr<HermiteSpline>;
 
 #endif // HERMITE_SPLINE_H_
