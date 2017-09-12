@@ -36,6 +36,8 @@ private:
     std::vector<glm::vec3> m_points;
     std::vector<size_t> m_indices;
 
+    size_t m_xStep, m_yStep;
+
     glm::vec4 m_color;
 };
 

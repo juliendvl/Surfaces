@@ -6,6 +6,8 @@ GLSurface::GLSurface(const SurfacePtr& surface)
     , m_vbo(0)
     , m_ibo(0)
     , m_surface(surface)
+    , m_xStep(0)
+    , m_yStep(0)
     , m_color(1.0f)
 {
     GLCHECK(glGenVertexArrays(1, &m_vao));
@@ -55,6 +57,12 @@ void GLSurface::tesselate(size_t xStep, size_t yStep)
     m_points.clear();
     m_indices.clear();
 
+    m_points.reserve(xStep * yStep);
+    m_indices.reserve(2 * xStep * yStep);
+
+    m_xStep = xStep;
+    m_yStep = yStep;
+
     // Points
     float uStep = 1.0f / (xStep - 1);
     float vStep = 1.0f / (yStep - 1);
@@ -62,20 +70,14 @@ void GLSurface::tesselate(size_t xStep, size_t yStep)
         for (size_t u = 0; u < xStep; ++u)
             m_points.push_back(m_surface->evaluate(u * uStep, v * vStep));
 
-    // Indices
-    for (size_t v = 0; v < yStep - 1; ++v)
-    {
-        for (size_t u = 0; u < xStep - 1; ++u)
-        {
-            m_indices.push_back(v * xStep + u + 1);
-            m_indices.push_back((v + 1) * xStep + u + 1); 
-            m_indices.push_back((v + 1) * xStep + u);
+    // Indices of columns
+    for (unsigned int i = 0; i < (unsigned int)xStep * yStep; ++i)
+        m_indices.push_back(i);
 
-            m_indices.push_back(v * xStep + u + 1);
-            m_indices.push_back((v + 1) * xStep + u);
-            m_indices.push_back(v * xStep + u);
-        }
-    }
+    // Indices of rows
+    for (unsigned int u = 0; u < (unsigned int)xStep; ++u)
+        for (unsigned int v = 0; v < (unsigned int)yStep; ++v)
+            m_indices.push_back(u + v * xStep);
 
     // Send data
     GLCHECK(glBindVertexArray(m_vao));
@@ -101,7 +103,24 @@ void GLSurface::draw(ShaderProgram& program)
     GLCHECK(glBindVertexArray(m_vao));
 
     program.setUniform("surfaceColor", m_color);
-    GLCHECK(glDrawElements(GL_TRIANGLES, m_indices.size(), GL_UNSIGNED_INT, nullptr));
+
+    // Draw columns
+    for (size_t v = 0; v < m_yStep; ++v)
+        GLCHECK(glDrawElements(
+            GL_LINE_STRIP,
+            m_xStep,
+            GL_UNSIGNED_INT,
+            (void*)(v * m_xStep * sizeof(unsigned int))
+        ));
+
+    // Draw lines
+    for (size_t u = 0; u < m_xStep; ++u)
+        GLCHECK(glDrawElements(
+            GL_LINE_STRIP,
+            m_yStep,
+            GL_UNSIGNED_INT,
+            (void*)((m_xStep * m_yStep + u * m_yStep) * sizeof(unsigned int))
+        ));
 
     GLCHECK(glBindVertexArray(0));
 }
