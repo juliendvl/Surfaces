@@ -23,6 +23,7 @@
     <ClInclude Include="..\Src\curves\GLCurve.h" />
     <ClInclude Include="..\Src\curves\HermiteSpline.h" />
     <ClInclude Include="..\Src\curves\LinearSpline.h" />
+    <ClInclude Include="..\Src\surfaces\DynamicSurface.h" />
     <ClInclude Include="..\Src\surfaces\GLSurface.h" />
     <ClInclude Include="..\Src\surfaces\Grid.h" />
     <ClInclude Include="..\Src\surfaces\HermiteSurface.h" />
@@ -38,6 +39,7 @@
     <ClCompile Include="..\Src\curves\HermiteSpline.cpp" />
     <ClCompile Include="..\Src\curves\LinearSpline.cpp" />
     <ClCompile Include="..\Src\Main.cpp" />
+    <ClCompile Include="..\Src\surfaces\DynamicSurface.cpp" />
     <ClCompile Include="..\Src\surfaces\GLSurface.cpp" />
     <ClCompile Include="..\Src\surfaces\Grid.cpp" />
     <ClCompile Include="..\Src\surfaces\HermiteSurface.cpp" />
