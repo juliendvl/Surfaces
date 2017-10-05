@@ -49,7 +49,7 @@ float HermiteSpline::compute_length(const glm::vec3& P0, const glm::vec3& P1,
   glm::vec3 lastPt = P0;
   for (unsigned int i = 1; i <= nb_samples; ++i)
   {
-    glm::vec3 P_t = hermite(P0, P1, T0, T1, i * step);
+    glm::vec3 P_t = Hermite<glm::vec3>(P0, P1, T0, T1, i * step);
     length += (P_t - lastPt).length();
     lastPt = P_t;
   }
@@ -91,7 +91,7 @@ glm::vec3 HermiteSpline::get_point(float param)
     if (param < _params[i])
     {
       float t = (param - _params[i - 1]) / (_params[i] - _params[i - 1]);
-      return hermite(_points[i - 1], _points[i], _tangents[i - 1], _tangents[i], t);
+      return Hermite<glm::vec3>(_points[i - 1], _points[i], _tangents[i - 1], _tangents[i], t);
     }
   }
 
@@ -110,22 +110,6 @@ void HermiteSpline::catmull_rom_tangents(float c)
 
   for (size_t i = 1; i < _points.size() - 1; ++i)
     _tangents[i] = c * (_points[i + 1] - _points[i - 1]);
-}
-
-glm::vec3 HermiteSpline::hermite(const glm::vec3& P0, const glm::vec3& P1, 
-                                  const glm::vec3& T0, const glm::vec3& T1, 
-                                  float t) const
-{
-  float t2 = t * t;
-  float t3 = t2 * t;
-
-  // Hermite basis functions
-  float h0 = 2.0f * t3 - 3.0f * t2 + 1.0f;
-  float h1 = t3 - 2.0f * t2 + t;
-  float h2 = -2.0f * t3 + 3.0f * t2;
-  float h3 = t3 - t2;
-
-  return h0 * P0 + h1 * T0 + h2 * P1 + h3 * T1;
 }
 
 glm::vec3 HermiteSpline::hermite_tangent(const glm::vec3& P0, const glm::vec3& P1,
