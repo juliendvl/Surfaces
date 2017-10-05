@@ -20,6 +20,8 @@ public:
 
     void setPointSize(float size) { m_pointSize = size; }
 
+    void setLineWidth(float width) { m_lineWidth = width; }
+
     void drawControlPoints(bool draw) { m_drawControlPoints = draw; }
 
     void setPointColor(const glm::vec3& color) { m_pointColor = glm::vec4(color, 1.0f); }
@@ -43,6 +45,7 @@ private:
     std::vector<glm::vec3> m_curvePoints;
 
     float m_pointSize;
+    float m_lineWidth;
     bool m_drawControlPoints;
 
     glm::vec4 m_pointColor;

@@ -7,6 +7,7 @@ GLCurve::GLCurve(const CurvePtr& curve)
     , m_cvbo(0)
     , m_curve(curve)
     , m_pointSize(5.0f)
+    , m_lineWidth(1.0f)
     , m_drawControlPoints(true)
     , m_pointColor(1.0f, 0.0f, 0.0f, 1.0f)
     , m_curveColor(1.0f)
@@ -101,8 +102,10 @@ void GLCurve::draw(ShaderProgram& pointProgram, ShaderProgram& curveProgram)
     curveProgram.start();
     curveProgram.setUniform("curveColor", m_curveColor);
 
+    GLCHECK(glLineWidth(m_lineWidth));
     GLCHECK(glBindBuffer(GL_ARRAY_BUFFER, m_cvbo));
     GLCHECK(glDrawArrays(GL_LINE_STRIP, 0, m_curvePoints.size()));
+    GLCHECK(glLineWidth(1.0f));
 
     ShaderProgram::Stop();
     GLCHECK(glBindVertexArray(0));
