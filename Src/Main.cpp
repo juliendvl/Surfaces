@@ -27,48 +27,7 @@ static void createSurface(DynamicSurface& surface, float t0, float t1, size_t nb
     }
 }
 
-static void initSplinesFromData(std::vector<CurvePtr>& outSplines)
-{
-    /*outSplines = {
-        std::make_shared<LinearSpline>(std::vector<glm::vec3>{
-            glm::vec3(-0.8f, -0.8f, 0.0f),
-            glm::vec3(-0.8f, -0.4f, 0.0f),
-            glm::vec3(-0.8f,  0.4f, 0.0f),
-            glm::vec3(-0.8f,  0.8f, 0.0f)
-        }),
-        std::make_shared<LinearSpline>(std::vector<glm::vec3>{
-            glm::vec3(-0.4f, -0.8f, 0.0f),
-            glm::vec3(-0.4f, -0.4f, 0.0f),
-            glm::vec3(-0.4f, 0.4f, 0.0f),
-            glm::vec3(-0.4f, 0.8f, 0.0f)
-        }),
-        std::make_shared<LinearSpline>(std::vector<glm::vec3>{
-            glm::vec3(0.4f, -0.8f, 0.0f),
-            glm::vec3(0.4f, -0.4f, 0.0f),
-            glm::vec3(0.4f, 0.4f, 0.0f),
-            glm::vec3(0.4f, 0.8f, 0.0f)
-        }),
-        std::make_shared<LinearSpline>(std::vector<glm::vec3>{
-            glm::vec3(0.8f, -0.8f, 0.0f),
-            glm::vec3(0.8f, -0.4f, 0.0f),
-            glm::vec3(0.8f, 0.4f, 0.0f),
-            glm::vec3(0.8f, 0.8f, 0.0f)
-        })
-    };*/
-
-    outSplines = {
-        std::make_shared<HermiteSpline>(
-            std::vector<glm::vec3> { glm::vec3(-0.8f, 0.8f, 0.0f), glm::vec3(-0.8f, -0.8f, 0.0f)},
-            std::vector<glm::vec3> { glm::vec3(-2.0f, 0.0f, 0.0f), glm::vec3(2.0f,  -1.0f, 0.0f)}
-        ),
-        std::make_shared<HermiteSpline>(
-            std::vector<glm::vec3> { glm::vec3(0.8f, 0.8f, 0.0f), glm::vec3(0.8f, -0.8f, 0.0f)},
-            std::vector<glm::vec3> { glm::vec3(2.0f, 0.0f, 0.0f), glm::vec3(-2.0f,  0.0f, 0.0f)}
-        )
-    };
-}
-
-static void initSplineFromFile(const std::string& fileName, std::vector<CurvePtr>& outSplines)
+static CurvePtr loadSplineFromFile(const std::string& fileName)
 {
     std::ifstream stream(fileName);
     if (stream.is_open())
@@ -87,8 +46,11 @@ static void initSplineFromFile(const std::string& fileName, std::vector<CurvePtr
         }
 
         stream.close();
-        outSplines.push_back(std::make_shared<LinearSpline>(samples));
+        return std::make_shared<LinearSpline>(samples);
     }
+
+    Logger::Error("loadSplineFromFile : failed to open file " + fileName);
+    return nullptr;
 }
 
 
@@ -101,13 +63,26 @@ int main()
     viewer.addProgram("point", "../Shaders/point.vs", "../Shaders/point.fs");
     viewer.addProgram("surface", "../Shaders/surface.vs", "../Shaders/surface.fs");
 
-    std::vector<CurvePtr> splines;
-    initSplineFromFile("stroke0.txt", splines);
-    initSplineFromFile("stroke1.txt", splines);
-    //initSplinesFromData(splines);
+    std::vector<CurvePtr> splines = {
+        std::make_shared<HermiteSpline>(
+            std::vector<glm::vec3> { glm::vec3(-2.0f, 2.0f, 0.0f), glm::vec3(-2.0f, -2.0f, 0.0f)},
+            std::vector<glm::vec3> { glm::vec3(0.0f, -1.0f, 0.0f), glm::vec3(0.0f, -1.0f, 0.0f)}
+        ),
+        std::make_shared<HermiteSpline>(
+            std::vector<glm::vec3> { glm::vec3(-0.8f, 0.8f, 0.0f), glm::vec3(-0.8f, -0.8f, 0.0f)},
+            std::vector<glm::vec3> { glm::vec3(2.0f, 0.0f, 0.0f), glm::vec3(2.0f, 0.0f, 0.0f)}
+        ),
+        std::make_shared<HermiteSpline>(
+            std::vector<glm::vec3> { glm::vec3(0.8f, 0.8f, 0.0f), glm::vec3(0.8f, -0.8f, 0.0f)},
+            std::vector<glm::vec3> { glm::vec3(2.0f, 0.0f, 0.0f), glm::vec3(-2.0f, -0.0f, 0.0f)}
+        ),
+        std::make_shared<HermiteSpline>(
+            std::vector<glm::vec3> { glm::vec3(2.0f, 1.2f, 0.0f), glm::vec3(2.0f, -1.2f, 0.0f)},
+            std::vector<glm::vec3> { glm::vec3(0.0f, -1.0f, 0.0f), glm::vec3(0.0f,  -1.0f, 0.0f)}
+        )
+    };
 
     DynamicSurface dynSurface(140);
-
     float t = 0.0f;
     for (CurvePtr& spline : splines)
     {
@@ -122,7 +97,7 @@ int main()
         viewer.addCurve(glCurve);
     }
 
-    createSurface(dynSurface, 0.0f, --t, 20, viewer);
+    createSurface(dynSurface, 0.0f, --t, 100, viewer);
 
     while (viewer.isRunning())
     {
