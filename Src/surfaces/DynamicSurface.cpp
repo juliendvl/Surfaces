@@ -3,6 +3,7 @@
 #include <cmath>
 #include <iostream>
 
+#include <glm/gtx/quaternion.hpp>
 #include <glm/gtx/rotate_vector.hpp>
 
 #include "curves/HermiteSpline.h"
@@ -136,11 +137,12 @@ CurvePtr DynamicSurface::interpolate(
         float s = i * ds;
 
         // Angle
-        float A0  = computeAngle(C0, nullptr, nullptr, s, ds, false);
-        float A1  = computeAngle(C1, nullptr, nullptr, s, ds, false);
-        float DA0 = computeAngle(nullptr, prevC0, C1, s, ds, true);
-        float DA1 = computeAngle(nullptr, C0, nextC1, s, ds, true);
-        float A   = Hermite<float>(A0, A1, DA0, DA1, t);
+        float A0 = computeAngle(C0, nullptr, nullptr, s, ds, false);
+        float A1 = computeAngle(C1, nullptr, nullptr, s, ds, false);
+
+        glm::quat Q0 = glm::angleAxis(A0, glm::vec3(0.0f, 0.0f, 1.0f));
+        glm::quat Q1 = glm::angleAxis(A1, glm::vec3(0.0f, 0.0f, 1.0f));
+        glm::quat Q  = glm::slerp(Q0, Q1, t);
 
         // Length
         float L0  = computeLength(C0, nullptr, nullptr, s, ds, false);
@@ -150,7 +152,7 @@ CurvePtr DynamicSurface::interpolate(
         float L   = Hermite<float>(L0, L1, DL0, DL1, t);
 
         // Compute new point
-        prevPoint += L * glm::rotate(X_AXIS, A, glm::vec3(0.0f, 0.0f, 1.0f));
+        prevPoint += L * glm::rotate(Q, X_AXIS);
         samples.push_back(prevPoint);
     }
 
