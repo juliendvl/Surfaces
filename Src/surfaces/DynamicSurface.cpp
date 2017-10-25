@@ -15,48 +15,24 @@
 #define DEG_RAD(deg) deg * 3.141592f / 180.0f
 
 
-static const glm::vec3 X_AXIS = glm::vec3(1.0f, 0.0f, 0.0f);
+static const glm::vec3 X_AXIS(1.0f, 0.0f, 0.0f);
+static const glm::vec3 Z_AXIS(0.0f, 0.0f, 1.0f);
 
 static float computeAngle(const glm::vec3& source, const glm::vec3& target)
 {
     glm::vec3 cross = glm::cross(source, target);
 
     float angle = atan2f(glm::length(cross), glm::dot(source, target));
-    if (glm::dot(cross, glm::vec3(0.0f, 0.0f, 1.0f)) < 0.0f)
+    if (glm::dot(cross, Z_AXIS) < 0.0f)
         angle = -angle;
 
     return angle;
 }
 
-static float computeAngle(
-    const CurvePtr& C,
-    const CurvePtr& prevC,
-    const CurvePtr& nextC,
-    float s,
-    float ds,
-    bool derivative
-)
+static float computeAngle(const CurvePtr& C, float s, float ds)
 {
-    if (derivative)
-    {
-        if (prevC && nextC)
-        {
-            glm::vec3 prevVec = prevC->get_point(s + ds) - prevC->get_point(s);
-            float prevA = computeAngle(X_AXIS, glm::normalize(prevVec));
-
-            glm::vec3 nextVec = nextC->get_point(s + ds) - nextC->get_point(s);
-            float nextA = computeAngle(X_AXIS, glm::normalize(nextVec));
-
-            return 0.5f * (nextA - prevA);
-        }
-        else
-            return 0.0f;
-    }
-    else
-    {
-        glm::vec3 vec = C->get_point(s + ds) - C->get_point(s);
-        return computeAngle(X_AXIS, glm::normalize(vec));
-    }
+    glm::vec3 vec = C->get_point(s + ds) - C->get_point(s);
+    return computeAngle(X_AXIS, glm::normalize(vec));
 }
 
 static float computeLength(
@@ -137,11 +113,11 @@ CurvePtr DynamicSurface::interpolate(
         float s = i * ds;
 
         // Angle
-        float A0 = computeAngle(C0, nullptr, nullptr, s, ds, false);
-        float A1 = computeAngle(C1, nullptr, nullptr, s, ds, false);
+        float A0 = computeAngle(C0, s, ds);
+        float A1 = computeAngle(C1, s, ds);
 
-        glm::quat Q0 = glm::angleAxis(A0, glm::vec3(0.0f, 0.0f, 1.0f));
-        glm::quat Q1 = glm::angleAxis(A1, glm::vec3(0.0f, 0.0f, 1.0f));
+        glm::quat Q0 = glm::angleAxis(A0, Z_AXIS);
+        glm::quat Q1 = glm::angleAxis(A1, Z_AXIS);
         glm::quat Q  = glm::slerp(Q0, Q1, t);
 
         // Length
